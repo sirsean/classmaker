@@ -1,0 +1,98 @@
+#!/usr/bin/env ruby
+
+require 'fileutils'
+require 'classmaker'
+
+def parse_args
+    src_base, name, package_name, interface, test = nil, nil, nil, nil, nil
+    ARGV.each do |arg|
+        src_base_matcher = arg.match(/--base=(.+)/)
+        if src_base_matcher
+            src_base = src_base_matcher[1]
+        end
+        name_matcher = arg.match(/--name=(.+)/)
+        if name_matcher
+            name = name_matcher[1]
+        end
+        package_name_matcher = arg.match(/--package=(.+)/)
+        if package_name_matcher
+            package_name = package_name_matcher[1]
+        end
+        interface_matcher = arg.match(/--interface/)
+        if interface_matcher
+            interface = true
+        end
+        test_matcher = arg.match(/--test/)
+        if test_matcher
+            test = true
+        end
+    end
+    val = {
+        :src_base => src_base || "src/main/java",
+        :name => name || `id -un`.chomp,
+        :package_name => package_name || "",
+        :interface => interface || false,
+        :test => test || false
+    }
+    if val[:test]
+        val[:src_base] = "src/test/java"
+    end
+    return val
+end
+
+def type_name(interface, test)
+    if interface
+        return "Interface"
+    elsif test
+        return "Test"
+    else
+        return "Class"
+    end
+end
+
+config = parse_args
+interface = config[:interface]
+test = config[:test]
+
+# ask for package
+package_name = config[:package_name]
+while package_name.empty?
+    puts "Package name: "
+    package_name = STDIN.gets.chomp
+end
+
+# ask for class name
+class_name = ""
+while class_name.empty?
+    puts "#{type_name(interface ,test)} name: "
+    class_name = STDIN.gets.chomp
+end
+
+
+puts "Thank you. You've entered your class information."
+
+puts "Source base: #{config[:src_base]}"
+puts "Package: #{package_name}"
+puts "Class: #{class_name}"
+
+if interface
+    java_interface = JavaInterfaceTemplate.new(config, package_name, class_name)
+    java_interface.write
+elsif test
+    java_test = JavaTestTemplate.new(config, package_name, class_name)
+    java_test.write
+else
+# ask for instance variables
+    puts "Enter field names in the form <field_name>:<type> ... and when you're done, enter a blank line."
+    fields = []
+    while true
+        field_input = STDIN.gets.chomp
+        if not field_input.empty?
+            fields << Variable.parse(field_input)
+        else
+            break
+        end
+    end
+    java_class = JavaClassTemplate.new(config, package_name, class_name, fields)
+    java_class.write
+end

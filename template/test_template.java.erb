@@ -1,0 +1,40 @@
+package <%= @package %>;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.Before;
+
+import org.jmock.Mockery;
+import org.jmock.Expectations;
+
+import org.jmock.integration.junit4.JMock;
+import org.jmock.integration.junit4.JUnit4Mockery;
+
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
+
+import com.trustwave.util.AssertFailedException;
+
+/**
+ * 
+ * 
+ * @author <%= @name %>
+ */
+@RunWith(JMock.class)
+public class <%= @class_name %> {
+    Mockery context = new JUnit4Mockery();
+
+    
+
+    @Before
+    public void setupMocks() {
+    }
+
+}
